@@ -1,5 +1,7 @@
 // Step 1: Flutter basics import
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'displaydatapage.dart'; // Import the display data page
 
 // Step 2: main() function - app entry point
 void main() {
@@ -20,8 +22,8 @@ class MyApp extends StatelessWidget {
     );
   }
 }
-// Step 4: ContactFormPage create panrom
 
+// Step 4: ContactFormPage create panrom
 class ContactFormPage extends StatefulWidget {
   const ContactFormPage({super.key});
 
@@ -36,8 +38,18 @@ class _ContactFormPageState extends State<ContactFormPage> {
   final emailController = TextEditingController();
   final messageController = TextEditingController();
 
-  //validation for textfields
-  final _formkey=GlobalKey<FormState>();
+  // validation for textfields
+  final _formkey = GlobalKey<FormState>();
+
+  // Save form data locally
+  Future<void> saveFormData() async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString('name', nameController.text);
+    await prefs.setString('email', emailController.text);
+    await prefs.setString('message', messageController.text);
+    debugPrint("✅ Form data saved locally!");
+  }
+
   // Dispose controllers
   @override
   void dispose() {
@@ -46,50 +58,53 @@ class _ContactFormPageState extends State<ContactFormPage> {
     messageController.dispose();
     super.dispose();
   }
-  // UI design
 
+  // UI design
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(title: const Text('Contact Form')),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
-        
-        child: Form (
+        child: Form(
           key: _formkey,
           child: Column(
             children: [
-              //Name TextFileld
+              // Name TextField
               TextFormField(
                 controller: nameController,
                 decoration: const InputDecoration(
                   labelText: 'Name',
                   border: OutlineInputBorder(),
                 ),
-                validator: (value){if(value==null|| value.trim().isEmpty){
-                  return 'Please enter your name';
-                }
-                }
+                validator: (value) {
+                  if (value == null || value.trim().isEmpty) {
+                    return 'Please enter your name';
+                  }
+                  return null;
+                },
               ),
               const SizedBox(height: 16),
+
               // Email TextField
               TextFormField(
                 controller: emailController,
                 decoration: const InputDecoration(
                   labelText: 'Email',
                   border: OutlineInputBorder(),
-                ),   
-                validator:(value){
-                    if(value==null || value.trim().isEmpty){
-                      return 'Please enter your email';
-                    }
-                    if (!value.contains('@')) {
+                ),
+                validator: (value) {
+                  if (value == null || value.trim().isEmpty) {
+                    return 'Please enter your email';
+                  }
+                  if (!value.contains('@')) {
                     return 'Enter a valid email address';
                   }
                   return null;
-                  }
+                },
               ),
               const SizedBox(height: 16),
+
               // Message TextField
               TextFormField(
                 controller: messageController,
@@ -97,41 +112,35 @@ class _ContactFormPageState extends State<ContactFormPage> {
                   labelText: 'Enter Your Message',
                   border: OutlineInputBorder(),
                 ),
-                validator:(value){
-                  if(value==null || value.trim().isEmpty){
-                    return'Please Enter Your Message';
+                validator: (value) {
+                  if (value == null || value.trim().isEmpty) {
+                    return 'Please Enter Your Message';
                   }
+                  return null;
                 },
               ),
               const SizedBox(height: 16),
+
               // Submit Button
               ElevatedButton(
-                onPressed: () {
-                 
-                  //get data from fields
-                  final name = nameController.text;
-                  final email = emailController.text;
-                  final message = messageController.text;
-                   // Validation logic
-                  if(_formkey.currentState!.validate()){
-                  //Alert dialog with entered details
-                  showDialog(
-                    context: context,
-                    builder: (context) => AlertDialog(
-                      title: const Text('Submitted Details'),
-                      content: Text('Name:$name\nEmail:$email\nMessage:$message'),
-                      actions: [
-                        TextButton(
-                          onPressed: () => Navigator.pop(context),
-                          child: const Text('OK'),
-                        ),
-                      ],
-                    ),
-                  );
-                  nameController.clear();
-          emailController.clear();
-          messageController.clear();
+                onPressed: () async {
+                  if (_formkey.currentState!.validate()) {
+                    await saveFormData(); // Step 3.1: Save data
+
+                    // Step 3.2: Navigate to new page after saving
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => const DisplayDataPage(),
+                      ),
+                    );
+
+                    // Step 3.3: Clear fields
+                    nameController.clear();
+                    emailController.clear();
+                    messageController.clear();
                   }
+
                 },
                 child: const Text('Submit'),
               ),
