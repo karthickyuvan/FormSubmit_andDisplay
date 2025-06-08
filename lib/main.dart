@@ -1,29 +1,29 @@
-// Step 1: Flutter basics import
+// Step 1: Import required packages
 import 'package:flutter/material.dart';
-import 'package:shared_preferences/shared_preferences.dart';
-import 'displaydatapage.dart'; // Import the display data page
+import 'package:shared_preferences/shared_preferences.dart'; // For saving data locally
+import 'displaydatapage.dart'; // Import the page where we show saved data
 
-// Step 2: main() function - app entry point
+// Step 2: main() function - app execution starts here
 void main() {
   runApp(const MyApp());
 }
 
-// Step 3: StatelessWidget for app structure
+// Step 3: MyApp widget - app structure & theme set panrom
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
 
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      debugShowCheckedModeBanner: false,
-      title: 'Contact Form',
-      theme: ThemeData(primarySwatch: Colors.blue),
-      home: const ContactFormPage(),
+      debugShowCheckedModeBanner: false, // Hide debug banner
+      title: 'Contact Form', // App title
+      theme: ThemeData(primarySwatch: Colors.blue), // Set app theme
+      home: const ContactFormPage(), // First page to show when app opens
     );
   }
 }
 
-// Step 4: ContactFormPage create panrom
+// Step 4: ContactFormPage - Stateful widget to manage form inputs
 class ContactFormPage extends StatefulWidget {
   const ContactFormPage({super.key});
 
@@ -31,26 +31,26 @@ class ContactFormPage extends StatefulWidget {
   State<ContactFormPage> createState() => _ContactFormPageState();
 }
 
-// Step 5: State create panrom
+// Step 5: Create state class - logic & UI build panrom
 class _ContactFormPageState extends State<ContactFormPage> {
-  // Text controllers for name, email, message
+  // Step 6: TextEditingControllers to get text field values
   final nameController = TextEditingController();
   final emailController = TextEditingController();
   final messageController = TextEditingController();
 
-  // validation for textfields
+  // Step 7: Form key to manage validation
   final _formkey = GlobalKey<FormState>();
 
-  // Save form data locally
+  // Step 8: Function to save data locally using SharedPreferences
   Future<void> saveFormData() async {
-    final prefs = await SharedPreferences.getInstance();
-    await prefs.setString('name', nameController.text);
-    await prefs.setString('email', emailController.text);
-    await prefs.setString('message', messageController.text);
+    final prefs = await SharedPreferences.getInstance(); // Get SharedPreferences instance
+    await prefs.setString('name', nameController.text); // Save name
+    await prefs.setString('email', emailController.text); // Save email
+    await prefs.setString('message', messageController.text); // Save message
     debugPrint("✅ Form data saved locally!");
   }
 
-  // Dispose controllers
+  // Step 9: Dispose controllers to avoid memory leaks
   @override
   void dispose() {
     nameController.dispose();
@@ -59,18 +59,18 @@ class _ContactFormPageState extends State<ContactFormPage> {
     super.dispose();
   }
 
-  // UI design
+  // Step 10: Build UI with Scaffold, AppBar and Form
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Contact Form')),
+      appBar: AppBar(title: const Text('Contact Form')), // App bar with title
       body: Padding(
-        padding: const EdgeInsets.all(16.0),
+        padding: const EdgeInsets.all(16.0), // Outer padding
         child: Form(
-          key: _formkey,
+          key: _formkey, // Assign form key
           child: Column(
             children: [
-              // Name TextField
+              // Step 11: Name field with validation
               TextFormField(
                 controller: nameController,
                 decoration: const InputDecoration(
@@ -86,7 +86,7 @@ class _ContactFormPageState extends State<ContactFormPage> {
               ),
               const SizedBox(height: 16),
 
-              // Email TextField
+              // Step 12: Email field with validation
               TextFormField(
                 controller: emailController,
                 decoration: const InputDecoration(
@@ -105,7 +105,7 @@ class _ContactFormPageState extends State<ContactFormPage> {
               ),
               const SizedBox(height: 16),
 
-              // Message TextField
+              // Step 13: Message field with validation
               TextFormField(
                 controller: messageController,
                 decoration: const InputDecoration(
@@ -121,13 +121,15 @@ class _ContactFormPageState extends State<ContactFormPage> {
               ),
               const SizedBox(height: 16),
 
-              // Submit Button
+              // Step 14: Submit button to validate and navigate
               ElevatedButton(
                 onPressed: () async {
+                  // Step 14.1: Validate all fields
                   if (_formkey.currentState!.validate()) {
-                    await saveFormData(); // Step 3.1: Save data
+                    // Step 14.2: Save data to local storage
+                    await saveFormData();
 
-                    // Step 3.2: Navigate to new page after saving
+                    // Step 14.3: Navigate to DisplayDataPage
                     Navigator.push(
                       context,
                       MaterialPageRoute(
@@ -135,14 +137,13 @@ class _ContactFormPageState extends State<ContactFormPage> {
                       ),
                     );
 
-                    // Step 3.3: Clear fields
+                    // Step 14.4: Clear input fields after submission
                     nameController.clear();
                     emailController.clear();
                     messageController.clear();
                   }
-
                 },
-                child: const Text('Submit'),
+                child: const Text('Submit'), // Button text
               ),
             ],
           ),
